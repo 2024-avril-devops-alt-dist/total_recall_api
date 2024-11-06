@@ -50,4 +50,5 @@ next-env.d.ts
 
 # other
 get_code_context.sh
+get_code_context.txt
 credentials.txt

@@ -1,4 +1,4 @@
-# LMB SaaS Api
+# Total Recall Api
 
 ## Development
 
@@ -6,6 +6,7 @@
 
 ```bash
 cp env.example .env
+
 pnpm docker:up
 pnpm install
 ```
@@ -22,7 +23,7 @@ pnpm install
 
 ### Tests
 
-TODO: rework this section
+TODO:
 
 ---
 

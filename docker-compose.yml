@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+      - "9000:9000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    command: ["mongod", "--quiet"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

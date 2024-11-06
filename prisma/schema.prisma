@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String     @id @default(auto()) @map("_id") @db.ObjectId
+  email              String     @unique
+  password           String
+  phoneNotification  Boolean    @default(false)
+  phoneNumber        String?
+  bookings           Booking[]
+}
+
+model Location {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  city      String
+  country   String
+  airports  Airport[]
+  stopovers Stopover[]
+}
+
+model AirlineCompany {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  companyName String
+  flights     Flight[]
+}
+
+model Airport {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  airportName  String
+  servedCities String[]
+  location     Location   @relation(fields: [locationId], references: [id])
+  locationId   String     @db.ObjectId
+  departures   Flight[]   @relation("DepartureAirport")
+  arrivals     Flight[]   @relation("ArrivalAirport")
+}
+
+model Flight {
+  id                 String          @id @default(auto()) @map("_id") @db.ObjectId
+  bookingOpenStatus  Boolean
+  flightStatus       FlightStatus
+  departureAirport   Airport         @relation("DepartureAirport", fields: [departureAirportId], references: [id])
+  departureAirportId String          @db.ObjectId
+  arrivalAirport     Airport         @relation("ArrivalAirport", fields: [arrivalAirportId], references: [id])
+  arrivalAirportId   String          @db.ObjectId
+  departureDate      DateTime
+  arrivalDate        DateTime
+  airlineCompany     AirlineCompany  @relation(fields: [airlineCompanyId], references: [id])
+  airlineCompanyId   String          @db.ObjectId
+  stopovers          Stopover[]
+  bookings           Booking[]
+}
+
+enum FlightStatus {
+  SCHEDULED
+  CANCELLED
+  COMPLETED
+}
+
+model Stopover {
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  arrivalDate   DateTime
+  departureDate DateTime
+  location      Location   @relation(fields: [locationId], references: [id])
+  locationId    String     @db.ObjectId
+  flight        Flight     @relation(fields: [flightId], references: [id])
+  flightId      String     @db.ObjectId
+}
+
+model Passenger {
+  id        String             @id @default(auto()) @map("_id") @db.ObjectId
+  firstName String
+  lastName  String
+  age       Int                @default(0)
+  bookings  BookingPassenger[]
+}
+
+model Booking {
+  id         String             @id @default(auto()) @map("_id") @db.ObjectId
+  bookingStatus BookingStatus
+  user        User               @relation(fields: [userId], references: [id])
+  userId      String             @db.ObjectId
+  flight      Flight             @relation(fields: [flightId], references: [id])
+  flightId    String             @db.ObjectId
+  passengers  BookingPassenger[]
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+model BookingPassenger {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  booking     Booking    @relation(fields: [bookingId], references: [id])
+  bookingId   String     @db.ObjectId
+  passenger   Passenger  @relation(fields: [passengerId], references: [id])
+  passengerId String     @db.ObjectId
+}

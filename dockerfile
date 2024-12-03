@@ -1,23 +1,20 @@
 # Utiliser l'image officielle Node.js 18
 FROM node:18.20-alpine
 
-# Définir le répertoire de travail dans le conteneur
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier les fichiers package.json et package-lock.json
+# Copier les fichiers de configuration
 COPY package*.json ./
 
 # Installer les dépendances
 RUN npm install
 
-# Copier le reste de l'application
+# Copier le reste du code
 COPY . .
 
-# Construire l'application Next.js
-RUN npm run build
-
-# Exposer les ports 3000 et 9000
+# Exposer le port
 EXPOSE 3000 9000
 
 # Démarrer l'application
-CMD ["npm", "start"]
+CMD ["npm", "run", "start"]

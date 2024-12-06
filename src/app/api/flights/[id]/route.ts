@@ -22,7 +22,7 @@ export async function GET(
       return NextResponse.json({ error: "Flight not found" }, { status: 404 });
     }
 
-    return NextResponse.json(flight);
+    return NextResponse.json(flight, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch flight" },
@@ -36,41 +36,40 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const existingFlight = await prisma.flight.findUnique({
+      where: { id: params.id },
+    });
+    if (!existingFlight) {
+      return NextResponse.json({ error: "Flight not found" }, { status: 404 });
+    }
+
     const data = await request.json();
     const parsedData = flightSchema.partial().parse(data);
+
+    // Vérification cohérence horaire si modifié
+    if (
+      parsedData.departureDate &&
+      parsedData.arrivalDate &&
+      parsedData.departureDate >= parsedData.arrivalDate
+    ) {
+      return NextResponse.json(
+        { error: "Departure date must be before arrival date" },
+        { status: 400 }
+      );
+    }
 
     const updatedFlight = await prisma.flight.update({
       where: { id: params.id },
       data: parsedData,
     });
 
-    return NextResponse.json(updatedFlight);
-  } catch (error) {
+    return NextResponse.json(updatedFlight, { status: 200 });
+  } catch (error: any) {
     if (error instanceof ZodError) {
       return NextResponse.json({ errors: error.errors }, { status: 400 });
-    } else if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    } else {
-      return NextResponse.json(
-        { error: "An unexpected error occurred" },
-        { status: 500 }
-      );
     }
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    await prisma.flight.delete({
-      where: { id: params.id },
-    });
-    return NextResponse.json({ message: "Flight deleted successfully" });
-  } catch (error) {
     return NextResponse.json(
-      { error: "Failed to delete flight" },
+      { error: "Failed to update flight" },
       { status: 500 }
     );
   }

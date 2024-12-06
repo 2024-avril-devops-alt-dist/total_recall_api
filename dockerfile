@@ -1,20 +1,29 @@
-# Utiliser l'image officielle Node.js 18
+# Utilisez une image Node.js comme base
 FROM node:18.20-alpine
 
-# Définir le répertoire de travail
+# Définissez le répertoire de travail
 WORKDIR /app
 
-# Copier les fichiers de configuration
-COPY package*.json ./
+# Copiez les fichiers package.json et pnpm-lock.yaml pour installer les dépendances
+COPY package.json pnpm-lock.yaml ./
 
-# Installer les dépendances
-RUN npm install
+# Installez pnpm (si nécessaire)
+RUN npm install -g pnpm
 
-# Copier le reste du code
+# Installez les dépendances
+RUN pnpm install
+
+# Copiez tout le reste du projet dans l'image Docker
 COPY . .
 
-# Exposer le port
-EXPOSE 3000 9000
+# prisma generate
+RUN pnpm prisma:generate
 
-# Démarrer l'application
-CMD ["npm", "run", "start"]
+# Construisez l'application Next.js
+RUN pnpm build
+
+# Exposez le port 3000
+EXPOSE 3000
+
+# Démarrez l'application en mode production
+CMD ["pnpm", "start"]

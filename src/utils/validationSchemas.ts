@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BookingStatus, FlightStatus } from "@/enums/enums";
 
 export const userSchema = z.object({
   email: z.string().email(),
@@ -26,7 +27,7 @@ export const airportSchema = z.object({
 
 export const flightSchema = z.object({
   bookingOpenStatus: z.boolean(),
-  flightStatus: z.enum(["SCHEDULED", "CANCELLED", "COMPLETED"]),
+  flightStatus: z.nativeEnum(FlightStatus),
   departureAirportId: z.string(),
   arrivalAirportId: z.string(),
   departureDate: z.string().transform((str) => new Date(str)),
@@ -48,10 +49,14 @@ export const passengerSchema = z.object({
 });
 
 export const bookingSchema = z.object({
-  bookingStatus: z.enum(["CONFIRMED", "CANCELLED"]),
+  bookingStatus: z.nativeEnum(BookingStatus),
   userId: z.string(),
   flightId: z.string(),
   passengersIds: z.array(z.string()),
+});
+
+export const bookingUpdateSchema = z.object({
+  bookingStatus: z.nativeEnum(BookingStatus),
 });
 
 export const bookingPassengerSchema = z.object({

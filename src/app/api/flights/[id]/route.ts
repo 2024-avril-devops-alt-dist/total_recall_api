@@ -5,11 +5,13 @@ import { ZodError } from "zod";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const id = (await params).id;
+
     const flight = await prisma.flight.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         departureAirport: true,
         arrivalAirport: true,
@@ -33,11 +35,12 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const id = (await params).id;
     const existingFlight = await prisma.flight.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     if (!existingFlight) {
       return NextResponse.json({ error: "Flight not found" }, { status: 404 });
@@ -59,7 +62,7 @@ export async function PUT(
     }
 
     const updatedFlight = await prisma.flight.update({
-      where: { id: params.id },
+      where: { id },
       data: parsedData,
     });
 

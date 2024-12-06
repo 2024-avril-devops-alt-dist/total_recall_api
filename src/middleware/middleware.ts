@@ -7,8 +7,14 @@ export async function middleware(request: NextRequest) {
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
   });
-  const url = request.nextUrl.clone();
+  const url = request.nextUrl;
 
+  // autoriser GET /api/flights sans authentification
+  if (url.pathname.startsWith("/api/flights") && request.method === "GET") {
+    return NextResponse.next();
+  }
+
+  // Toutes les autres routes /api nécessitent un token
   if (!token) {
     url.pathname = "/api/auth/login";
     return NextResponse.redirect(url);

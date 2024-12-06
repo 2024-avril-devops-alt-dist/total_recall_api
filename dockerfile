@@ -23,7 +23,7 @@ RUN pnpm prisma:generate
 RUN pnpm build
 
 # Exposez le port 3000
-EXPOSE 3000
+EXPOSE 3000 9000
 
 # Démarrez l'application en mode production
 CMD ["pnpm", "start"]

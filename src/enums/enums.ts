@@ -3,3 +3,8 @@ export enum FlightStatus {
   CANCELLED = "CANCELLED",
   COMPLETED = "COMPLETED",
 }
+
+export enum BookingStatus {
+  CONFIRMED = "CONFIRMED",
+  CANCELLED = "CANCELLED",
+}

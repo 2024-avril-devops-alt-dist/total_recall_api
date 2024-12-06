@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         phoneNotification: parsedData.phoneNotification || false,
         phoneNumber: parsedData.phoneNumber,
-        // role: 'USER' si tu intègres la notion de rôle plus tard
+        // TODO role: 'USER', 'ADMIN' etc...
       },
     });
 

@@ -1,4 +1,3 @@
-// src/app/api/flights/[id]/cancel/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/pirsma";
 import { handleError } from "@/utils/errorHandler";

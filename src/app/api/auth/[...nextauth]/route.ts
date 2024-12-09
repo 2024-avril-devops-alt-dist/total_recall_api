@@ -23,7 +23,7 @@ const handler = NextAuth({
           where: { email: credentials.email },
         });
         if (user && (await compare(credentials.password, user.password))) {
-          return { id: user.id, email: user.email };
+          return user;
         } else {
           return null;
         }
@@ -32,6 +32,21 @@ const handler = NextAuth({
   ],
   session: {
     strategy: "jwt",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role; // Injection du rôle dans le token
+        token.userId = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token?.role) {
+        (session.user as any).role = token.role;
+      }
+      return session;
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 });

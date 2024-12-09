@@ -1,8 +1,5 @@
-"use client";
-
-import { SessionProvider } from "next-auth/react";
-import type { Session } from "next-auth";
 import type { Metadata } from "next";
+import AuthProviders from "@/app/AuthProvider";
 
 export const metadata: Metadata = {
   title: "total recall API",
@@ -11,13 +8,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en">
       <body>
-        <SessionProvider>{children}</SessionProvider>
+        <AuthProviders>{children}</AuthProviders>
       </body>
     </html>
   );

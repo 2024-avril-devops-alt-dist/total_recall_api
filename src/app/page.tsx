@@ -16,7 +16,6 @@ export default function Home() {
               You are logged in as{" "}
               {session.user.role ? session.user.role : "USER"}
             </p>
-            {/* If you want to link to docs which is admin only, just add a link here */}
             {session.user.role === "ADMIN" && (
               <p>
                 <Link href="/docs">Go to Swagger Docs (Admin Only)</Link>
@@ -24,11 +23,11 @@ export default function Home() {
             )}
           </div>
         ) : (
-          <Link href="/pages/login">Sign In</Link>
+          <Link href="/login">Sign In</Link>
         )}
       </main>
       <footer>
-        <p>No footer yet</p>
+        <p>footer kekw</p>
       </footer>
     </div>
   );

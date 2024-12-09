@@ -3,46 +3,46 @@ import { getToken } from "next-auth/jwt";
 import prisma from "@/lib/pirsma";
 import {
   handleError,
-  NotFoundError,
   ForbiddenError,
+  NotFoundError,
 } from "@/utils/errorHandler";
 import logger from "@/lib/logger";
 
-export async function GET(
+export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const id = (await params).id;
-
-    // Vérifier si l'utilisateur est authentifié et peut accéder aux données (soit lui-même, soit ADMIN)
+    // Vérifier si l'utilisateur est authentifié et est un ADMIN
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
     });
-    if (!token || (token.userId !== id && token.role !== "ADMIN")) {
+    if (!token || token.role !== "ADMIN") {
       throw new ForbiddenError("Access denied");
     }
 
-    const user = await prisma.user.findUnique({
+    // Mettre à jour le statut du vol à CANCELLED
+    const flight = await prisma.flight.update({
       where: { id },
-      select: {
-        id: true,
-        email: true,
-        phoneNotification: true,
-        phoneNumber: true,
-        bookings: true,
-      },
+      data: { flightStatus: "CANCELLED", bookingOpenStatus: false },
     });
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!flight) {
+      throw new NotFoundError("Flight not found");
     }
 
-    // Log l'accès aux informations de l'utilisateur
-    logger.info(`User ${id} data accessed by user ${token.userId}`);
+    // Annuler les réservations associées
+    await prisma.booking.updateMany({
+      where: { flightId: flight.id },
+      data: { bookingStatus: "CANCELLED" },
+    });
 
-    return NextResponse.json(user, { status: 200 });
+    // Log l'action d'annulation du vol
+    logger.info(`Flight ${id} cancelled by user ${token.userId}`);
+
+    return NextResponse.json({ message: "Flight cancelled", flight });
   } catch (error: any) {
     if (error instanceof ForbiddenError || error instanceof NotFoundError) {
       return NextResponse.json(
@@ -50,6 +50,6 @@ export async function GET(
         { status: error instanceof ForbiddenError ? 403 : 404 }
       );
     }
-    return handleError(error, "Failed to fetch user");
+    return handleError(error, "Failed to cancel flight");
   }
 }

@@ -5,8 +5,8 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("admin@admin.com");
-  const [password, setPassword] = useState("ImThe8055OfthiSapp");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -17,7 +17,7 @@ export default function LoginPage() {
       password,
     });
     if (res && !res.error) {
-      router.push("/"); // Redirect to the homepage after successful login
+      router.push("/"); // Redirige vers la page d'accueil une fois connecté
     } else {
       alert("Invalid credentials");
     }
@@ -32,12 +32,14 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
+          required
         />
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
+          required
         />
         <button type="submit">Sign In</button>
       </form>

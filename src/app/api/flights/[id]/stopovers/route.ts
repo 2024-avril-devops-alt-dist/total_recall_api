@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 import prisma from "@/lib/pirsma";
 import { stopoverSchema } from "@/utils/validationSchemas";
 import { ZodError } from "zod";
-import { handleError } from "@/utils/errorHandler";
+import {
+  handleError,
+  NotFoundError,
+  ValidationError,
+  ForbiddenError,
+} from "@/utils/errorHandler";
+import logger from "@/lib/logger";
 
 export async function GET(
   request: NextRequest,
@@ -34,12 +41,21 @@ export async function POST(
 ) {
   try {
     const id = (await params).id;
+    // Vérifier si l'utilisateur est authentifié et est un ADMIN
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
+    if (!token || token.role !== "ADMIN") {
+      throw new ForbiddenError("Access denied");
+    }
+
     const data = await request.json();
     const parsedData = stopoverSchema.parse({ ...data, flightId: id });
 
     const flight = await prisma.flight.findUnique({ where: { id } });
     if (!flight) {
-      return NextResponse.json({ error: "Flight not found" }, { status: 404 });
+      throw new NotFoundError("Flight not found");
     }
 
     // Vérifier cohérence horaire
@@ -48,19 +64,8 @@ export async function POST(
       parsedData.departureDate > flight.arrivalDate ||
       parsedData.arrivalDate >= parsedData.departureDate
     ) {
-      return NextResponse.json(
-        { error: "Stopover dates are not coherent with the flight schedule" },
-        { status: 400 }
-      );
-    }
-
-    const location = await prisma.location.findUnique({
-      where: { id: parsedData.locationId },
-    });
-    if (!location) {
-      return NextResponse.json(
-        { error: "Location not found" },
-        { status: 404 }
+      throw new ValidationError(
+        "Stopover dates are not coherent with the flight schedule"
       );
     }
 
@@ -68,6 +73,7 @@ export async function POST(
     const existingStopovers = await prisma.stopover.findMany({
       where: { flightId: id },
     });
+
     for (const s of existingStopovers) {
       if (
         (parsedData.arrivalDate >= s.arrivalDate &&
@@ -75,9 +81,8 @@ export async function POST(
         (parsedData.departureDate >= s.arrivalDate &&
           parsedData.departureDate <= s.departureDate)
       ) {
-        return NextResponse.json(
-          { error: "Stopover overlaps with another existing stopover" },
-          { status: 400 }
+        throw new ValidationError(
+          "Stopover overlaps with another existing stopover"
         );
       }
     }
@@ -91,10 +96,30 @@ export async function POST(
       },
     });
 
+    // Log l'action de création d'une escale
+    logger.info(`Stopover created for flight ${id} by user ${token.userId}`);
+
     return NextResponse.json(newStopover, { status: 201 });
   } catch (error: any) {
     if (error instanceof ZodError) {
       return NextResponse.json({ errors: error.errors }, { status: 400 });
+    }
+    if (
+      error instanceof NotFoundError ||
+      error instanceof ValidationError ||
+      error instanceof ForbiddenError
+    ) {
+      return NextResponse.json(
+        { error: error.message },
+        {
+          status:
+            error instanceof ForbiddenError
+              ? 403
+              : error instanceof NotFoundError
+              ? 404
+              : 400,
+        }
+      );
     }
     return handleError(error, "Failed to create stopover");
   }

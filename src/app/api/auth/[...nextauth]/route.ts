@@ -1,8 +1,10 @@
-import NextAuth from "next-auth";
+import { NextRequest, NextResponse } from "next/server";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import prisma from "@/lib/pirsma";
 import { compare } from "bcryptjs";
+import clientPromise from "@/lib/mongodb";
+import prisma from "@/lib/pirsma";
 
 const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -23,7 +25,11 @@ const handler = NextAuth({
           where: { email: credentials.email },
         });
         if (user && (await compare(credentials.password, user.password))) {
-          return user;
+          return {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+          };
         } else {
           return null;
         }
@@ -36,14 +42,15 @@ const handler = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role; // Injection du rôle dans le token
+        token.role = user.role;
         token.userId = user.id;
       }
       return token;
     },
     async session({ session, token }) {
-      if (token?.role) {
-        (session.user as any).role = token.role;
+      if (token) {
+        session.user.id = token.userId as string;
+        session.user.role = token.role as "ADMIN" | "USER";
       }
       return session;
     },

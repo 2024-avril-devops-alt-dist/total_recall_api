@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/pirsma";
 import { stopoverSchema } from "@/utils/validationSchemas";
 import { ZodError } from "zod";
+import { handleError } from "@/utils/errorHandler";
 
 export async function GET(
   request: NextRequest,
@@ -41,6 +42,18 @@ export async function POST(
       return NextResponse.json({ error: "Flight not found" }, { status: 404 });
     }
 
+    // Vérifier cohérence horaire
+    if (
+      parsedData.arrivalDate < flight.departureDate ||
+      parsedData.departureDate > flight.arrivalDate ||
+      parsedData.arrivalDate >= parsedData.departureDate
+    ) {
+      return NextResponse.json(
+        { error: "Stopover dates are not coherent with the flight schedule" },
+        { status: 400 }
+      );
+    }
+
     const location = await prisma.location.findUnique({
       where: { id: parsedData.locationId },
     });
@@ -51,12 +64,22 @@ export async function POST(
       );
     }
 
-    // Vérification cohérence horaire ?
-    if (parsedData.arrivalDate >= parsedData.departureDate) {
-      return NextResponse.json(
-        { error: "Arrival date must be before departure date" },
-        { status: 400 }
-      );
+    // Vérifier chevauchement avec d’autres escales
+    const existingStopovers = await prisma.stopover.findMany({
+      where: { flightId: id },
+    });
+    for (const s of existingStopovers) {
+      if (
+        (parsedData.arrivalDate >= s.arrivalDate &&
+          parsedData.arrivalDate <= s.departureDate) ||
+        (parsedData.departureDate >= s.arrivalDate &&
+          parsedData.departureDate <= s.departureDate)
+      ) {
+        return NextResponse.json(
+          { error: "Stopover overlaps with another existing stopover" },
+          { status: 400 }
+        );
+      }
     }
 
     const newStopover = await prisma.stopover.create({
@@ -73,9 +96,6 @@ export async function POST(
     if (error instanceof ZodError) {
       return NextResponse.json({ errors: error.errors }, { status: 400 });
     }
-    return NextResponse.json(
-      { error: "Failed to create stopover" },
-      { status: 500 }
-    );
+    return handleError(error, "Failed to create stopover");
   }
 }

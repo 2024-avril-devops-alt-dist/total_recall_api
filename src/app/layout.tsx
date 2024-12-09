@@ -1,3 +1,7 @@
+"use client";
+
+import { SessionProvider } from "next-auth/react";
+import type { Session } from "next-auth";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,12 +11,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <SessionProvider>{children}</SessionProvider>
+      </body>
     </html>
   );
 }

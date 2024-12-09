@@ -9,6 +9,11 @@
 - Docker and docker-compose (if using the Docker setup)
 - A MongoDB Atlas account (or access to a MongoDB instance)
 
+### Links
+
+- locale app: http://localhost:3000
+- Swagger: http://localhost:3000/docs
+
 ### Setup
 
 1. Clone the repository:
@@ -36,26 +41,33 @@ DATABASE_URL="mongodb+srv://<user>:<password>@<cluster>.mongodb.net/total_recall
 pnpm prisma:generate
 ```
 
+---
+
+## After pulling
+
 ### Seed
 
-- Seed mock data
+- Seed mock data and admin account:
 
 ```bash
-mongosh "mongodb+srv://<username>:<password>@<cluster>.mongodb.net/total_recall_db?retryWrites=true&w=majority" <  src/db/seedMockData.js
+pnpm seed:data
 ```
 
 ### Running the Application
 
 - Development mode:
 
+- use docker
+
+```bash
+pnpm docker:up
+```
+
+OR
+
 ```bash
 pnpm dev
 ```
-
-### Links
-
-- locale app: http://localhost:3000
-- Swagger: http://localhost:3000/docs
 
 ### Tests
 
@@ -63,6 +75,42 @@ pnpm dev
 
 ```bash
 pnpm test
+```
+
+## Good to know
+
+- if `schema.prisma` changes:
+
+```bash
+pnpm prisma:generate
+```
+
+- Docker in the app :
+
+to run docker:
+
+```bash
+pnpm docker:up
+```
+
+to end docker:
+
+```bash
+pnpm docker:up
+```
+
+#### WARNINGS THESE will remove everything
+
+to prune unused Docker objects:
+
+```bash
+docker system prune -a --volumes
+```
+
+to remove everything:
+
+```bash
+docker system prune -a -f
 ```
 
 ## Deployment

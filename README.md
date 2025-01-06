@@ -96,7 +96,7 @@ pnpm docker:up
 to end docker:
 
 ```bash
-pnpm docker:up
+pnpm docker:down
 ```
 
 #### WARNINGS THESE will remove everything

@@ -1,9 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compare } from "bcryptjs";
-import clientPromise from "@/lib/mongodb";
 import prisma from "@/lib/pirsma";
 
 const handler = NextAuth({

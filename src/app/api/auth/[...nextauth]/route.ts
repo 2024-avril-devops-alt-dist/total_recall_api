@@ -5,6 +5,7 @@ import { compare } from "bcryptjs";
 import prisma from "@/lib/pirsma";
 
 const handler = NextAuth({
+  secret: process.env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -53,7 +54,6 @@ const handler = NextAuth({
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
 });
 
 export { handler as GET, handler as POST };

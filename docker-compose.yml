@@ -6,7 +6,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=developement
+      - NODE_ENV=development
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
       - mongodb

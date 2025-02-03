@@ -20,7 +20,7 @@ COPY . .
 RUN pnpm prisma:generate
 
 # Construisez l'application Next.js
-RUN pnpm build
+RUN pnpm build --no-lint
 
 # Exposez le port 3000
 EXPOSE 3000

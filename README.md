@@ -60,7 +60,7 @@ pnpm seed:data
 - use docker
 
 ```bash
-pnpm docker:up
+sudo pnpm docker:up
 ```
 
 OR

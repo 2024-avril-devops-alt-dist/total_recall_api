@@ -12,14 +12,29 @@ enum Role {
   USER
 }
 
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
 model User {
   id                 String     @id @default(auto()) @map("_id") @db.ObjectId
-  email              String     @unique
-  password           String
-  phoneNotification  Boolean    @default(false)
+  firstName          String?
+  lastName           String?
+  email              String    @unique
+  image              String?
+  role               Role?
+  phone              String?
+  isAdmin            Boolean   @default(false)
+  status             Status    @default(INACTIVE)
+  hashedPassword     String?
   phoneNumber        String?
-  role               Role       @default(USER)
+  phoneNotification  Boolean   @default(false)
+  provider           String?   @default("email")
   bookings           Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Location {

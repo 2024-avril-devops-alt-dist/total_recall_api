@@ -24,10 +24,9 @@ export async function POST(request: NextRequest) {
     const newUser = await prisma.user.create({
       data: {
         email: parsedData.email,
-        password: hashedPassword,
+        hashedPassword: hashedPassword,
         phoneNotification: parsedData.phoneNotification || false,
         phoneNumber: parsedData.phoneNumber,
-        // TODO role: 'USER', 'ADMIN' etc...
       },
     });
 

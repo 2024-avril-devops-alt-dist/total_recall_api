@@ -28,7 +28,7 @@ async function main() {
       role: "ADMIN",
       status: "ACTIVE",
       isAdmin: true,
-      phoneNotification: true,
+      phoneNotification: false,
       phoneNumber: "+33123456789",
     },
   });
@@ -42,7 +42,8 @@ async function main() {
       role: "USER",
       status: "ACTIVE",
       isAdmin: false,
-      phoneNotification: false,
+      phoneNotification: true,
+      phoneNumber: "+33123456789",
     },
   });
 

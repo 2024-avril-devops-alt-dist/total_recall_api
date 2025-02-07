@@ -5,7 +5,7 @@ import {
   handleError,
   ForbiddenError,
   NotFoundError,
-} from "@/utils/errorHandler";
+} from "@/lib/utils/errorHandler";
 import logger from "@/lib/logger";
 
 export async function POST(

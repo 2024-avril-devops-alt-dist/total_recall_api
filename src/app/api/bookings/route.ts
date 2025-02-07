@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/pirsma";
-import { bookingSchema } from "@/utils/validationSchemas";
+import { bookingSchema } from "@/lib/utils/validationSchemas";
 import { ZodError } from "zod";
 
 export async function POST(request: NextRequest) {

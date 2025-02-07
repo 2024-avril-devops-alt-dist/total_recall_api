@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import { compare } from "bcryptjs";
 import prisma from "@/lib/pirsma";
-import Github from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
 import { DefaultSession } from "next-auth";
@@ -20,41 +19,52 @@ declare module "next-auth" {
 
 const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
-    Github({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
-    }),
     CredentialsProvider({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const { email, password } = credentials ?? {};
-        if (!email || !password) {
-          throw new Error("Nom d'utilisateur ou mot de passe manquant");
+        try {
+          const { email, password } = credentials ?? {};
+
+          if (!email || !password) {
+            throw new Error("Email et mot de passe requis");
+          }
+
+          const user = await prisma.user.findUnique({
+            where: { email: email as string },
+          });
+
+          if (!user) {
+            throw new Error("Utilisateur non trouvé");
+          }
+
+          if (!user.hashedPassword) {
+            throw new Error("Compte créé avec un fournisseur externe");
+          }
+
+          const isPasswordValid = await compare(
+            password as string,
+            user.hashedPassword
+          );
+
+          if (!isPasswordValid) {
+            throw new Error("Mot de passe incorrect");
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            image: user.image,
+            role: user.role as "ADMIN" | "USER" | undefined,
+          };
+        } catch (error: any) {
+          console.error("Erreur d'authentification:", error);
+          throw error;
         }
-
-        const user = await prisma.user.findUnique({
-          where: { email: email as string },
-        });
-
-        if (
-          !user ||
-          !user?.hashedPassword ||
-          !(await compare(password as string, user.hashedPassword))
-        ) {
-          throw new Error("Nom d'utilisateur ou mot de passe incorrect");
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          image: user.image,
-          role: user.role as "ADMIN" | "USER" | undefined,
-        };
       },
     }),
   ],

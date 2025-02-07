@@ -5,7 +5,7 @@ import {
   handleError,
   NotFoundError,
   ForbiddenError,
-} from "@/utils/errorHandler";
+} from "@/lib/utils/errorHandler";
 import logger from "@/lib/logger";
 
 export async function GET(

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import prisma from "@/lib/pirsma";
-import { stopoverSchema } from "@/utils/validationSchemas";
+import { stopoverSchema } from "@/lib/utils/validationSchemas";
 import { ZodError } from "zod";
 import {
   handleError,
   NotFoundError,
   ValidationError,
   ForbiddenError,
-} from "@/utils/errorHandler";
+} from "@/lib/utils/errorHandler";
 import logger from "@/lib/logger";
 
 export async function GET(
@@ -116,8 +116,8 @@ export async function POST(
             error instanceof ForbiddenError
               ? 403
               : error instanceof NotFoundError
-              ? 404
-              : 400,
+                ? 404
+                : 400,
         }
       );
     }

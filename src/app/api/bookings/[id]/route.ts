@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/pirsma";
-import { bookingUpdateSchema } from "@/utils/validationSchemas";
+import { bookingUpdateSchema } from "@/lib/utils/validationSchemas";
 import { ZodError } from "zod";
-import { handleError } from "@/utils/errorHandler";
+import { handleError } from "@/lib/utils/errorHandler";
 
 export async function GET(
   request: NextRequest,

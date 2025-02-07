@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/pirsma";
-import { flightSchema } from "@/utils/validationSchemas";
+import { flightSchema } from "@/lib/utils/validationSchemas";
 import { ZodError } from "zod";
 
 export async function GET(

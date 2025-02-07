@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { NotFoundError, ValidationError, ForbiddenError } from "@/utils/errors";
+import {
+  NotFoundError,
+  ValidationError,
+  ForbiddenError,
+} from "@/lib/utils/errors";
 import logger from "@/lib/logger";
 
 export function handleError(error: any, message = "Internal Server Error") {

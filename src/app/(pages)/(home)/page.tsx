@@ -1,13 +1,18 @@
 import Container from "@/components/Container";
-import Logo from "@/components/Logo";
+import { Footer } from "@/components/footer/footer";
 
 export default function Home() {
   return (
     <>
       <Container>
-        <Logo />
-        <h1 className="text-4xl font-bold">Home</h1>
+        <div>
+          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Illum
+          blanditiis dolore in, veniam mollitia beatae molestias. Quae,
+          laboriosam id. Obcaecati voluptates minus est in quaerat nihil laborum
+          natus nesciunt assumenda?
+        </div>
       </Container>
+      <Footer />
     </>
   );
 }

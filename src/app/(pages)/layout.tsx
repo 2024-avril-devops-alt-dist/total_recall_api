@@ -1,7 +1,6 @@
 import "@/styles/default.css";
 import { ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
-import { AccountCompleteModal } from "@/components/auth/AccountCompleteModal";
 import Nav from "@/components/layout/Nav";
 import { auth } from "@/auth";
 
@@ -16,8 +15,6 @@ export default async function RootLayout({
 
   return (
     <div>
-      {session && <AccountCompleteModal />}
-
       <Nav user={session?.user} />
       {modal}
       {children}

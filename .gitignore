@@ -37,8 +37,8 @@ yarn-error.log*
 !.vscode/extensions.json
 
 # env files (can opt-in for commiting if needed)
-/.env
-/.env.test
+.env
+.env.test
 .env.local
 
 # vercel
